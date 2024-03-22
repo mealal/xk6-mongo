@@ -66,14 +66,16 @@ func (c *Client) Find(database string, collection string, filter interface{}) []
 	db := c.client.Database(database)
 	col := db.Collection(collection)
 	log.Print(filter_is, filter)
-	cur, err := col.Find(context.TODO(), filter)
+	//cur, err := col.Find(context.TODO(), filter)
+	_, err := col.Find(context.TODO(), filter)
 	if err != nil {
 		log.Fatal(err)
 	}
 	var results []bson.M
-	if err = cur.All(context.TODO(), &results); err != nil {
-		panic(err)
-	}
+	// commeting this out for testing purposes
+	// if err = cur.All(context.TODO(), &results); err != nil {
+	// 	panic(err)
+	// }
 	return results
 }
 
@@ -143,10 +145,16 @@ func (c *Client) DeleteOne(database string, collection string, filter map[string
 	return nil
 }
 
-func (c *Client) DeleteMany(database string, collection string, filter map[string]string) error {
+func (c *Client) DeleteMany(database string, collection string, filter map[string]string, hint string) error {
 	db := c.client.Database(database)
 	col := db.Collection(collection)
-	opts := options.Delete().SetHint(bson.D{{"_id", 1}})
+	//opts := options.Delete().SetHint(bson.D{{"_id", 1}})
+
+	opts := options.Delete()
+
+	if len(hint) > 0 {
+		opts = opts.SetHint(bson.D{{hint, 1}})
+	}
 	log.Print(filter_is, filter)
 	result, err := col.DeleteMany(context.TODO(), filter, opts)
 	if err != nil {
