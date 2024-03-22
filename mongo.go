@@ -133,6 +133,26 @@ func (c *Client) UpdateOne(database string, collection string, filter interface{
 	return nil
 }
 
+func (c *Client) UpsertOne(database string, collection string, filter interface{}, update interface{}) error {
+	// var result bson.M
+	db := c.client.Database(database)
+	col := db.Collection(collection)
+	options := options.Update().SetUpsert(true)
+	result, err := col.UpdateOne(context.TODO(), filter, update, options)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// opts := options.FindOne().SetSort(bson.D{{"_id", 1}})
+	// err = col.FindOne(context.TODO(), filter, opts).Decode(&result)
+	// if err == mongo.ErrNoDocuments {
+	// 	log.Printf("No document was found for filter %v", filter)
+	// 	return nil
+	// }
+	log.Printf("found document %v", result)
+	return nil
+}
+
 func (c *Client) FindAll(database string, collection string) []bson.M {
 	log.Printf("Find all documents")
 	db := c.client.Database(database)
